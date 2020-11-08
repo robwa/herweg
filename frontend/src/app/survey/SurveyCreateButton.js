@@ -11,7 +11,7 @@ export function SurveyCreateButton() {
     const notify = useSnackbarNotifier();
 
     const [mutate] = useMutation(create, {
-        onSuccess: ({ data: { id } }) => history.push(`/surveys/${id}`),
+        onSuccess: ({ data: { uuid } }) => history.push(`/surveys/${uuid}`),
         onError: err => notify({
             severity: 'error',
             title: 'Something went wrong',

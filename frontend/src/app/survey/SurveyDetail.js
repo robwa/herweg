@@ -1,14 +1,13 @@
-import { CircularProgress, Table, TableBody, TableCell, TableFooter, TableHead, TableRow, Typography } from "@material-ui/core";
+import { CircularProgress, Table, TableBody, TableCell, TableFooter, TableHead, TableRow } from "@material-ui/core";
 import { fetchMany } from "api/fetchMany";
-import { fetchOne } from "api/fetchOne";
 import { AssignmentForm } from "app/assignment/AssignmentForm";
 import { CategoryForm } from "app/category/CategoryForm";
+import { convertDateToJulianDay } from 'lib/dateUtil';
 import React from "react";
 import { useQuery } from "react-query";
 import { useParams } from "react-router-dom";
 import { AssignmentList } from "../assignment/AssignmentList";
 
-import { convertDateToJulianDay } from 'lib/dateUtil';
 
 function AssignmentsCell({ julianDay, assignmentsByJulianDay, category }) {
     const assignmentData = assignmentsByJulianDay[julianDay] ?? [];
@@ -41,35 +40,27 @@ function SurveyTableRows({ categories, assignmentsByCategoryIdAndJulianDay, juli
 }
 
 export function SurveyDetail() {
-    const { surveyId } = useParams();
+    const { surveyUuid } = useParams();
 
-    const { data: survey } = useQuery(['surveys', {
-        id: surveyId,
-    }], fetchOne);
-
-    const { data: categories } = useQuery(['categories', {
-        filter: { survey_id: surveyId }
+    const { data: surveys } = useQuery(['surveys', {
+        filter: { uuid: surveyUuid },
     }], fetchMany);
 
-    if (!survey || !categories) {
-        return <CircularProgress />;
-    }
+    const survey = surveys?.data?.[0];
 
-    return <SurveyTableWithAssignments {...{ survey, categories }} />;
-}
-
-function SurveyTableWithAssignments({ survey, categories }) {
-    const categoryIds = categories.data.map(c => c.id);
+    const { data: categories } = useQuery(['categories', {
+        filter: { survey_id: survey?.id }
+    }], fetchMany, { enabled: survey });
 
     const julianToday = convertDateToJulianDay(new Date());
     const julianDays = [julianToday - 1, julianToday, julianToday + 1];
 
     const { data: assignments } = useQuery(['assignments', {
         filter: {
-            category_id: categoryIds.join(','),
+            category_id: categories?.data?.map(c => c.id)?.join(','),
             julian_day: julianDays.join(','),
         },
-    }], fetchMany);
+    }], fetchMany, { enabled: categories?.data });
 
     if (!assignments) {
         return <CircularProgress />;
@@ -93,7 +84,6 @@ function SurveyTableWithEverythingYouNeed({ assignments, survey, julianDays, cat
     );
 
     return (<>
-        <Typography variant="h6">{survey.data.uuid}</Typography>
         <Table>
             <TableHead>
                 <TableRow>
@@ -107,7 +97,7 @@ function SurveyTableWithEverythingYouNeed({ assignments, survey, julianDays, cat
             </TableBody>
             <TableFooter>
                 <TableRow>
-                    <TableCell><CategoryForm surveyId={survey.data.id} /></TableCell>
+                    <TableCell><CategoryForm surveyId={survey.id} /></TableCell>
                 </TableRow>
             </TableFooter>
         </Table>

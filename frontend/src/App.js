@@ -22,7 +22,7 @@ function Main() {
     return (<>
         <Router>
             <Switch>
-                <Route path="/surveys/:surveyId">
+                <Route path="/surveys/:surveyUuid">
                     <SurveyDetail />
                 </Route>
                 <Route path="/">
