@@ -2,26 +2,46 @@
 
 function serveResourceIndex($db, $resource, $filter)
 {
-    $filterConditions = implode(
-        ' AND ',
-        array_map(
-            fn ($c) => "$c = :$c",
-            array_keys($filter)
-        )
+    $filterKeys = array_keys($filter);
+
+    $filterValues = array_map(
+        fn ($v) => is_array($v) ? $v : explode(',', $v),
+        array_values($filter)
     );
-    $placeholders = array_map(
-        fn ($c) => ":$c",
-        array_keys($filter)
+
+    $filterPlaceholders = array_map(
+        fn ($k, $vs) => array_map(
+            fn ($idx) => ":$k$idx",
+            range(1, count($vs))
+        ),
+        $filterKeys,
+        $filterValues
     );
-    $stmt = count($filter) === 0
+
+    $filterConditions = array_map(
+        fn ($k, $ps) => "$k IN (" . implode(', ', $ps) . ")",
+        $filterKeys,
+        $filterPlaceholders
+    );
+
+    $stmt = count($filterConditions) === 0
         ? $db->prepare("SELECT * FROM $resource;")
-        : $db->prepare("SELECT * FROM $resource WHERE $filterConditions;");
+        : $db->prepare("SELECT * FROM $resource WHERE " . implode(' AND ', $filterConditions) . ";");
     if (!$stmt) {
         http_response_code(500);
         return;
     }
-    foreach (array_combine($placeholders, array_values($filter)) as $placeholder => &$value) {
-        $stmt->bindParam($placeholder, $value);
+
+    $filterBindings = array_map(
+        fn ($ps, $vs) => array_combine($ps, $vs),
+        $filterPlaceholders,
+        $filterValues
+    );
+
+    foreach ($filterBindings as $bs) {
+        foreach ($bs as $p => &$v) {
+            $stmt->bindParam($p, $v);
+        }
     }
     $result = $stmt->execute();
 
