@@ -1,5 +1,6 @@
 import { BottomNavigation, BottomNavigationAction, Container } from "@material-ui/core";
 import { Favorite as FavoriteIcon, LocationOn as LocationOnIcon, Restore as RestoreIcon } from '@material-ui/icons';
+import { SurveyCreateButton } from "app/survey/SurveyCreateButton";
 import { instance } from 'gaxios';
 import qs from 'qs';
 import React from "react";
@@ -9,7 +10,6 @@ import SnackbarProvider from "SnackbarProvider";
 import 'typeface-roboto';
 import './App.css';
 import { SurveyDetail } from "./app/survey/SurveyDetail";
-import { SurveyList } from "./app/survey/SurveyList";
 
 instance.defaults = {
     // baseURL: 'http://localhost:3000',
@@ -43,7 +43,7 @@ function Main() {
                     <SurveyDetail />
                 </Route>
                 <Route path="/">
-                    <SurveyList />
+                    <SurveyCreateButton />
                 </Route>
             </Switch>
         </Router>
