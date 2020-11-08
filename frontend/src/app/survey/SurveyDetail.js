@@ -1,11 +1,12 @@
-import { CircularProgress, Table, TableBody, TableCell, TableFooter, TableHead, TableRow } from "@material-ui/core";
+import { CircularProgress, IconButton, Table, TableBody, TableCell, TableFooter, TableHead, TableRow } from "@material-ui/core";
+import { ArrowLeft as ArrowLeftIcon, ArrowRight as ArrowRightIcon } from "@material-ui/icons";
 import { fetchMany } from "api/fetchMany";
 import { AssignmentForm } from "app/assignment/AssignmentForm";
 import { CategoryForm } from "app/category/CategoryForm";
 import { convertDateToJulianDay, convertJulianDayToDate } from 'lib/dateUtil';
 import React from "react";
 import { useQuery } from "react-query";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { AssignmentList } from "../assignment/AssignmentList";
 
 
@@ -28,8 +29,10 @@ function SurveyTableRow({ category, assignmentsByCategoryIdAndJulianDay, julianD
             <TableCell component="th" scope="row">
                 {category.name}
             </TableCell>
+            <TableCell padding="checkbox">{/* prev day */}</TableCell>
             {julianDays.map(julianDay => (
                 <AssignmentsCell key={julianDay} {...{ julianDay, assignmentsByJulianDay, category }} />))}
+            <TableCell padding="checkbox">{/* next day */}</TableCell>
         </TableRow>
     </>);
 }
@@ -40,7 +43,7 @@ function SurveyTableRows({ categories, assignmentsByCategoryIdAndJulianDay, juli
 }
 
 export function SurveyDetail() {
-    const { surveyUuid } = useParams();
+    const { surveyUuid, julianDay } = useParams();
 
     const { data: surveys } = useQuery(['surveys', {
         filter: { uuid: surveyUuid },
@@ -52,8 +55,8 @@ export function SurveyDetail() {
         filter: { survey_id: survey?.id }
     }], fetchMany, { enabled: survey });
 
-    const julianToday = convertDateToJulianDay(new Date());
-    const julianDays = [julianToday - 1, julianToday, julianToday + 1];
+    const centralJulianDay = Number(julianDay ?? convertDateToJulianDay(new Date()));
+    const julianDays = [centralJulianDay - 1, centralJulianDay, centralJulianDay + 1];
 
     const { data: assignments } = useQuery(['assignments', {
         filter: {
@@ -66,10 +69,10 @@ export function SurveyDetail() {
         return <CircularProgress />;
     }
 
-    return <SurveyTableWithEverythingYouNeed {...{ assignments, survey, julianDays, categories }} />;
+    return <SurveyTableWithEverythingYouNeed {...{ assignments, survey, julianDays, categories, centralJulianDay }} />;
 }
 
-function SurveyTableWithEverythingYouNeed({ assignments, survey, julianDays, categories }) {
+function SurveyTableWithEverythingYouNeed({ assignments, survey, julianDays, categories, centralJulianDay }) {
     const assignmentsByCategoryIdAndJulianDay = React.useMemo(
         () => assignments.data.reduce((acc, assignment) => {
             const categoryId = assignment.category_id;
@@ -88,8 +91,10 @@ function SurveyTableWithEverythingYouNeed({ assignments, survey, julianDays, cat
             <TableHead>
                 <TableRow>
                     <TableCell component="th" scope="col">What?</TableCell>
+                    <TableCell padding="checkbox"><IconButton component={Link} to={`/surveys/${survey.uuid}/${centralJulianDay - 1}`}><ArrowLeftIcon /></IconButton></TableCell>
                     {julianDays.map(julianDay => (
                         <TableCell key={julianDay} component="th" scope="col">{convertJulianDayToDate(julianDay).toLocaleDateString()}</TableCell>))}
+                    <TableCell padding="checkbox"><IconButton component={Link} to={`/surveys/${survey.uuid}/${centralJulianDay + 1}`}><ArrowRightIcon /></IconButton></TableCell>
                 </TableRow>
             </TableHead>
             <TableBody>
