@@ -1,5 +1,4 @@
-import { BottomNavigation, BottomNavigationAction, Container } from "@material-ui/core";
-import { Favorite as FavoriteIcon, LocationOn as LocationOnIcon, Restore as RestoreIcon } from '@material-ui/icons';
+import { Container } from "@material-ui/core";
 import { SurveyCreateButton } from "app/survey/SurveyCreateButton";
 import { instance } from 'gaxios';
 import qs from 'qs';
@@ -17,22 +16,6 @@ instance.defaults = {
     //headers: {
     //  Authorization: 'SOME_TOKEN'
     //}
-}
-
-function SimpleBottomNavigation() {
-    const [value, setValue] = React.useState(0);
-
-    return (
-        <BottomNavigation
-            value={value}
-            onChange={(e, newValue) => setValue(newValue)}
-            showLabels
-        >
-            <BottomNavigationAction label="Recents" icon={<RestoreIcon />} />
-            <BottomNavigationAction label="Favorites" icon={<FavoriteIcon />} />
-            <BottomNavigationAction label="Nearby" icon={<LocationOnIcon />} />
-        </BottomNavigation >
-    );
 }
 
 function Main() {
@@ -54,7 +37,6 @@ function Layout() {
     return (<>
         <Container>
             <Main />
-            <SimpleBottomNavigation />
         </Container>
     </>);
 }
