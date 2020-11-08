@@ -12,7 +12,7 @@ function serveResourceIndex($db, $resource, $filter)
     $filterPlaceholders = array_map(
         function ($k, $vs) { return array_map(
             function ($k, $idx) { return ":$k$idx"; },
-            [ $k ],
+            array_fill(0, count($vs), $k),
             range(1, count($vs))
         ); },
         $filterKeys,
