@@ -10,27 +10,34 @@ import { AssignmentList } from "../assignment/AssignmentList";
 
 import { convertDateToJulianDay } from 'lib/dateUtil';
 
-function SurveyTableRow({ category, assignments, julianDay }) {
-    const assignmentData = assignments.data.filter(a => (
-        (a.category_id === category.id)
-        && (a.julian_day === julianDay)));
+function AssignmentsCell({ julianDay, assignmentsByJulianDay, category }) {
+    const assignmentData = assignmentsByJulianDay[julianDay] ?? [];
+
+    return (
+        <TableCell key={julianDay}>
+            <AssignmentList {...{ assignmentData }} />
+            <AssignmentForm categoryId={category.id} {...{ julianDay }} />
+        </TableCell>
+    );
+}
+
+function SurveyTableRow({ category, assignmentsByCategoryIdAndJulianDay, julianDays }) {
+    const assignmentsByJulianDay = assignmentsByCategoryIdAndJulianDay[category.id] ?? {};
 
     return (<>
         <TableRow>
             <TableCell component="th" scope="row">
                 {category.name}
             </TableCell>
-            <TableCell>
-                <AssignmentList  {...{ assignmentData }} />
-                <AssignmentForm categoryId={category.id} {...{ julianDay }} />
-            </TableCell>
+            {julianDays.map(julianDay => (
+                <AssignmentsCell key={julianDay} {...{ julianDay, assignmentsByJulianDay, category }} />))}
         </TableRow>
     </>);
 }
 
-function SurveyTableRows({ categories, assignments, julianDay }) {
+function SurveyTableRows({ categories, assignmentsByCategoryIdAndJulianDay, julianDays }) {
     return categories.data.map(category => (
-        <SurveyTableRow key={category.id} {...{ category, assignments, julianDay }} />));
+        <SurveyTableRow key={category.id} {...{ category, assignmentsByCategoryIdAndJulianDay, julianDays }} />));
 }
 
 export function SurveyDetail() {
@@ -54,12 +61,13 @@ export function SurveyDetail() {
 function SurveyTableWithAssignments({ survey, categories }) {
     const categoryIds = categories.data.map(c => c.id);
 
-    const julianDay = convertDateToJulianDay(new Date());
+    const julianToday = convertDateToJulianDay(new Date());
+    const julianDays = [julianToday - 1, julianToday, julianToday + 1];
 
     const { data: assignments } = useQuery(['assignments', {
         filter: {
             category_id: categoryIds.join(','),
-            julian_day: julianDay,
+            julian_day: julianDays.join(','),
         },
     }], fetchMany);
 
@@ -67,17 +75,35 @@ function SurveyTableWithAssignments({ survey, categories }) {
         return <CircularProgress />;
     }
 
+    return <SurveyTableWithEverythingYouNeed {...{ assignments, survey, julianDays, categories }} />;
+}
+
+function SurveyTableWithEverythingYouNeed({ assignments, survey, julianDays, categories }) {
+    const assignmentsByCategoryIdAndJulianDay = React.useMemo(
+        () => assignments.data.reduce((acc, assignment) => {
+            const categoryId = assignment.category_id;
+            const julianDay = assignment.julian_day;
+            const byJulianDay = acc[categoryId] ?? {};
+            const list = byJulianDay[julianDay] ?? [];
+            list.push(assignment);
+            byJulianDay[julianDay] = list;
+            acc[categoryId] = byJulianDay;
+            return acc;
+        }, {}), [assignments]
+    );
+
     return (<>
         <Typography variant="h6">{survey.data.uuid}</Typography>
         <Table>
             <TableHead>
                 <TableRow>
                     <TableCell component="th" scope="col">What?</TableCell>
-                    <TableCell component="th" scope="col">Who? ({julianDay})</TableCell>
+                    {julianDays.map(julianDay => (
+                        <TableCell key={julianDay} component="th" scope="col">Who? ({julianDay})</TableCell>))}
                 </TableRow>
             </TableHead>
             <TableBody>
-                <SurveyTableRows {...{ categories, assignments, julianDay }} />
+                <SurveyTableRows {...{ categories, assignmentsByCategoryIdAndJulianDay, julianDays }} />
             </TableBody>
             <TableFooter>
                 <TableRow>
