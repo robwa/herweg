@@ -11,9 +11,9 @@ function serveResourceIndex($db, $resource, $filter)
 
     $filterPlaceholders = array_map(
         function ($k, $vs) { return array_map(
-          function ($idx) { return [
-            ":$k$idx" => range(1, count($vs))
-          ]; }
+            function ($k, $idx) { return ":$k$idx"; },
+            [ $k ],
+            range(1, count($vs))
         ); },
         $filterKeys,
         $filterValues
