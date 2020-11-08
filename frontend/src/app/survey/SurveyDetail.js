@@ -2,7 +2,7 @@ import { CircularProgress, Table, TableBody, TableCell, TableFooter, TableHead, 
 import { fetchMany } from "api/fetchMany";
 import { AssignmentForm } from "app/assignment/AssignmentForm";
 import { CategoryForm } from "app/category/CategoryForm";
-import { convertDateToJulianDay } from 'lib/dateUtil';
+import { convertDateToJulianDay, convertJulianDayToDate } from 'lib/dateUtil';
 import React from "react";
 import { useQuery } from "react-query";
 import { useParams } from "react-router-dom";
@@ -89,7 +89,7 @@ function SurveyTableWithEverythingYouNeed({ assignments, survey, julianDays, cat
                 <TableRow>
                     <TableCell component="th" scope="col">What?</TableCell>
                     {julianDays.map(julianDay => (
-                        <TableCell key={julianDay} component="th" scope="col">Who? ({julianDay})</TableCell>))}
+                        <TableCell key={julianDay} component="th" scope="col">{convertJulianDayToDate(julianDay).toLocaleDateString()}</TableCell>))}
                 </TableRow>
             </TableHead>
             <TableBody>
