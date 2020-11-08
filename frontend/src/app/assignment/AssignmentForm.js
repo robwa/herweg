@@ -5,7 +5,7 @@ import React from "react";
 import { useMutation, useQueryCache } from 'react-query';
 import { useSnackbarNotifier } from 'SnackbarProvider';
 
-export function AssignmentForm({ categoryId }) {
+export function AssignmentForm({ categoryId, julianDay }) {
     const notify = useSnackbarNotifier();
 
     const [assignee, setAssignee] = React.useState("");
@@ -34,7 +34,7 @@ export function AssignmentForm({ categoryId }) {
         mutate({
             type: 'assignments',
             category_id: categoryId,
-            julian_day: 4,
+            julian_day: julianDay,
             assignee: assignee,
         });
     };

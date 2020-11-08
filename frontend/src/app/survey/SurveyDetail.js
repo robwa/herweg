@@ -8,8 +8,12 @@ import { useQuery } from "react-query";
 import { useParams } from "react-router-dom";
 import { AssignmentList } from "../assignment/AssignmentList";
 
-function SurveyTableRow({ category, assignments }) {
-    const assignmentData = assignments.data.filter(a => a.category_id === category.id);
+import { convertDateToJulianDay } from 'lib/dateUtil';
+
+function SurveyTableRow({ category, assignments, julianDay }) {
+    const assignmentData = assignments.data.filter(a => (
+        (a.category_id === category.id)
+        && (a.julian_day === julianDay)));
 
     return (<>
         <TableRow>
@@ -18,15 +22,15 @@ function SurveyTableRow({ category, assignments }) {
             </TableCell>
             <TableCell>
                 <AssignmentList  {...{ assignmentData }} />
-                <AssignmentForm categoryId={category.id} />
+                <AssignmentForm categoryId={category.id} {...{ julianDay }} />
             </TableCell>
         </TableRow>
     </>);
 }
 
-function SurveyTableRows({ categories, assignments }) {
+function SurveyTableRows({ categories, assignments, julianDay }) {
     return categories.data.map(category => (
-        <SurveyTableRow key={category.id} {...{ category, assignments }} />));
+        <SurveyTableRow key={category.id} {...{ category, assignments, julianDay }} />));
 }
 
 export function SurveyDetail() {
@@ -50,9 +54,13 @@ export function SurveyDetail() {
 function SurveyTableWithAssignments({ survey, categories }) {
     const categoryIds = categories.data.map(c => c.id);
 
+    const julianDay = convertDateToJulianDay(new Date());
 
     const { data: assignments } = useQuery(['assignments', {
-        filter: { category_id: categoryIds.join(',') }
+        filter: {
+            category_id: categoryIds.join(','),
+            julian_day: julianDay,
+        },
     }], fetchMany);
 
     if (!assignments) {
@@ -65,11 +73,11 @@ function SurveyTableWithAssignments({ survey, categories }) {
             <TableHead>
                 <TableRow>
                     <TableCell component="th" scope="col">What?</TableCell>
-                    <TableCell component="th" scope="col">Who?</TableCell>
+                    <TableCell component="th" scope="col">Who? ({julianDay})</TableCell>
                 </TableRow>
             </TableHead>
             <TableBody>
-                <SurveyTableRows {...{ categories, assignments }} />
+                <SurveyTableRows {...{ categories, assignments, julianDay }} />
             </TableBody>
             <TableFooter>
                 <TableRow>
