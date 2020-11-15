@@ -1,6 +1,5 @@
 NVM_DIR ?= $(HOME)/.nvm
 CP ?= cp
-MKDIR_P ?= mkdir -p
 
 .PHONY: all
 all: pkg
@@ -9,13 +8,15 @@ all: pkg
 ui:
 	cd frontend && \. "$(NVM_DIR)/nvm.sh" && nvm use && npm run-script build
 
+.PHONY: db
+db: ui
+	sqlite3 frontend/build/db.sqlite3 < backend/db/schema.sql
+
 .PHONY: collect
-collect: ui
+collect: db
 	$(RM) herweg.tar
 	$(RM) -r herweg
-	$(MKDIR_P) herweg
-	sqlite3 herweg/db.sqlite3 < backend/db/schema.sql
-	$(CP) -r frontend/build ./herweg/herweg
+	$(CP) -r frontend/build ./herweg
 	$(CP) backend/src/*.php ./herweg/
 	$(CP) backend/src/.htaccess ./herweg/
 	chmod -R ugo+rwX ./herweg

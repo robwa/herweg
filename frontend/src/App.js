@@ -11,7 +11,7 @@ import './App.css';
 import { SurveyDetail } from "./app/survey/SurveyDetail";
 
 instance.defaults = {
-    baseURL: '/herweg',
+    // baseURL: 'http://localhost:3000',
     paramsSerializer: params => qs.stringify(params, { arrayFormat: 'brackets' }),
     //headers: {
     //  Authorization: 'SOME_TOKEN'
@@ -20,7 +20,7 @@ instance.defaults = {
 
 function Main() {
     return (<>
-        <Router basename={'/herweg'}>
+        <Router>
             <Switch>
                 <Route path="/surveys/:surveyUuid/:julianDay">
                     <SurveyDetail />

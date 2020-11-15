@@ -12,7 +12,7 @@ function matchRequestPath()
 {
   $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
-  $base = '/herweg/api/v1';
+  $base = '/api/v1';
   $groups = [
     'resource' => '(?<resource>[^/]+)',
     'id' => '(?<id>\d+)',
