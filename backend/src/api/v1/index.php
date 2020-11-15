@@ -5,6 +5,7 @@
 require 'serveResourceById.php';
 require 'serveResourceIndex.php';
 
+require 'handleDelete.php';
 require 'handleGet.php';
 require 'handlePost.php';
 
@@ -87,6 +88,9 @@ switch ($_SERVER["REQUEST_METHOD"]) {
     break;
   case 'GET':
     handleGet($db, $query);
+    break;
+  case 'DELETE':
+    handleDelete($db, $query);
     break;
   default:
     http_response_code(405);

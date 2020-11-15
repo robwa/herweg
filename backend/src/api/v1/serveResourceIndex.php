@@ -19,8 +19,8 @@ function serveResourceIndex($db, $resource, $filter)
     );
 
     $stmt = count($filterConditions) === 0
-        ? $db->prepare("SELECT * FROM $resource;")
-        : $db->prepare("SELECT * FROM $resource WHERE " . implode(' AND ', $filterConditions) . ";");
+        ? $db->prepare("SELECT * FROM $resource WHERE deleted_at IS NULL;")
+        : $db->prepare("SELECT * FROM $resource WHERE " . implode(' AND ', $filterConditions) . " AND deleted_at IS NULL;");
     if (!$stmt) {
         http_response_code(500);
         return;

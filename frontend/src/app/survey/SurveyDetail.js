@@ -2,12 +2,14 @@ import { CircularProgress, IconButton, Table, TableBody, TableCell, TableFooter,
 import { ArrowLeft as ArrowLeftIcon, ArrowRight as ArrowRightIcon } from "@material-ui/icons";
 import { fetchMany } from "api/fetchMany";
 import { AssignmentForm } from "app/assignment/AssignmentForm";
+import { CategoryDeleteButton } from "app/category/CategoryDeleteButton";
 import { CategoryForm } from "app/category/CategoryForm";
 import { convertDateToJulianDay, convertJulianDayToDate } from 'lib/dateUtil';
 import React from "react";
 import { useQuery } from "react-query";
 import { Link, useParams } from "react-router-dom";
 import { AssignmentList } from "../assignment/AssignmentList";
+import { SurveyDeleteButton } from "./SurveyDeleteButton";
 
 
 function AssignmentsCell({ julianDay, assignmentsByJulianDay, category }) {
@@ -28,6 +30,9 @@ function SurveyTableRow({ category, assignmentsByCategoryIdAndJulianDay, julianD
         <TableRow>
             <TableCell component="th" scope="row">
                 {category.name}
+            </TableCell>
+            <TableCell padding="checkbox">
+                <CategoryDeleteButton categoryId={category.id} />
             </TableCell>
             <TableCell padding="checkbox">{/* prev day */}</TableCell>
             {julianDays.map(julianDay => (
@@ -91,6 +96,7 @@ function SurveyTableWithEverythingYouNeed({ assignments, survey, julianDays, cat
             <TableHead>
                 <TableRow>
                     <TableCell component="th" scope="col">What?</TableCell>
+                    <TableCell padding="checkbox">{/* DeleteButton */}</TableCell>
                     <TableCell padding="checkbox"><IconButton component={Link} to={`/surveys/${survey.uuid}/${centralJulianDay - 1}`}><ArrowLeftIcon /></IconButton></TableCell>
                     {julianDays.map(julianDay => (
                         <TableCell key={julianDay} component="th" scope="col">{convertJulianDayToDate(julianDay).toLocaleDateString()}</TableCell>))}
@@ -103,8 +109,11 @@ function SurveyTableWithEverythingYouNeed({ assignments, survey, julianDays, cat
             <TableFooter>
                 <TableRow>
                     <TableCell><CategoryForm surveyId={survey.id} /></TableCell>
+                    <TableCell padding="checkbox">{/* DeleteButton */}</TableCell>
+                    <TableCell colSpan={999}></TableCell>
                 </TableRow>
             </TableFooter>
         </Table>
+        <SurveyDeleteButton surveyUuid={survey.uuid} />
     </>);
 }

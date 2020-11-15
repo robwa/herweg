@@ -2,7 +2,7 @@
 
 function serveResourceById($db, $resource, $id)
 {
-    $stmt = $db->prepare("SELECT * FROM $resource WHERE id = :id;");
+    $stmt = $db->prepare("SELECT * FROM $resource WHERE id = :id AND deleted_at IS NULL;");
     if (!$stmt) {
         http_response_code(500);
         return;
