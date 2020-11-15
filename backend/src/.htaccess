@@ -1,6 +1,0 @@
-RewriteEngine On
-RewriteRule ^static/.*$ - [L,QSA]
-RewriteRule ^index.php$ - [L,QSA]
-RewriteRule ^index.html$ - [L,QSA]
-RewriteRule ^api/.*$ index.php [L,QSA]
-RewriteRule ^.*$ index.html [L,QSA]

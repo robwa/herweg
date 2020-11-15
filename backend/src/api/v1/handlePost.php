@@ -1,8 +1,8 @@
 <?php
 
-function handlePost($db, $pathMatch)
+function handlePost($db, $query)
 {
-    $resource = $pathMatch['resource'];
+    $resource = $query['resource'];
     // TODO: die if not in whitelist
     $payload = json_decode(file_get_contents('php://input'), true);
     $columns = implode(", ", array_keys($payload));

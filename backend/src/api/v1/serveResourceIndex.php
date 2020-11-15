@@ -2,26 +2,19 @@
 
 function serveResourceIndex($db, $resource, $filter)
 {
-    $filterKeys = array_keys($filter);
-
-    $filterValues = array_map(
-        function ($v) { return is_array($v) ? $v : explode(',', $v); },
-        array_values($filter)
-    );
-
     $filterPlaceholders = array_map(
         function ($k, $vs) { return array_map(
             function ($k, $idx) { return ":$k$idx"; },
             array_fill(0, count($vs), $k),
             range(1, count($vs))
         ); },
-        $filterKeys,
-        $filterValues
+        array_keys($filter),
+        array_values($filter)
     );
 
     $filterConditions = array_map(
         function ($k, $ps) { return "$k IN (" . implode(', ', $ps) . ")"; },
-        $filterKeys,
+        array_keys($filter),
         $filterPlaceholders
     );
 
@@ -36,7 +29,7 @@ function serveResourceIndex($db, $resource, $filter)
     $filterBindings = array_map(
         function ($ps, $vs) { return array_combine($ps, $vs); },
         $filterPlaceholders,
-        $filterValues
+        array_values($filter)
     );
 
     foreach ($filterBindings as $bs) {

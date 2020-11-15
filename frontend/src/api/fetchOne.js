@@ -1,7 +1,7 @@
 import { request } from 'gaxios';
 
-export function fetchOne(resource, { id, ...options }) {
-    const url = `/api/v1/${resource}/${id}`;
-    const params = {};
+export function fetchOne(type, { id, ...options }) {
+    const url = `./api/v1/`;
+    const params = { resource: type, id };
     return request({ method: 'GET', url, params });
 }

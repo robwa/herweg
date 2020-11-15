@@ -4,14 +4,13 @@ import { instance } from 'gaxios';
 import qs from 'qs';
 import React from "react";
 import { ReactQueryCacheProvider } from 'react-query';
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import { HashRouter as Router, Route, Switch } from "react-router-dom";
 import SnackbarProvider from "SnackbarProvider";
 import 'typeface-roboto';
 import './App.css';
 import { SurveyDetail } from "./app/survey/SurveyDetail";
 
 instance.defaults = {
-    // baseURL: 'http://localhost:3000',
     paramsSerializer: params => qs.stringify(params, { arrayFormat: 'brackets' }),
     //headers: {
     //  Authorization: 'SOME_TOKEN'
