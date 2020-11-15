@@ -95,8 +95,7 @@ function SurveyTableWithEverythingYouNeed({ assignments, survey, julianDays, cat
         <Table>
             <TableHead>
                 <TableRow>
-                    <TableCell component="th" scope="col">What?</TableCell>
-                    <TableCell padding="checkbox">{/* DeleteButton */}</TableCell>
+                    <TableCell component="th" scope="col" colSpan={2}>What?</TableCell>
                     <TableCell padding="checkbox"><IconButton component={Link} to={`/surveys/${survey.uuid}/${centralJulianDay - 1}`}><ArrowLeftIcon /></IconButton></TableCell>
                     {julianDays.map(julianDay => (
                         <TableCell key={julianDay} component="th" scope="col">{convertJulianDayToDate(julianDay).toLocaleDateString()}</TableCell>))}
@@ -108,8 +107,7 @@ function SurveyTableWithEverythingYouNeed({ assignments, survey, julianDays, cat
             </TableBody>
             <TableFooter>
                 <TableRow>
-                    <TableCell><CategoryForm surveyId={survey.id} /></TableCell>
-                    <TableCell padding="checkbox">{/* DeleteButton */}</TableCell>
+                    <TableCell colSpan={2}><CategoryForm surveyId={survey.id} /></TableCell>
                     <TableCell colSpan={999}></TableCell>
                 </TableRow>
             </TableFooter>
