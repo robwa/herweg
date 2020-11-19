@@ -3,7 +3,8 @@ import { ArrowLeft as ArrowLeftIcon, ArrowRight as ArrowRightIcon } from "@mater
 import { fetchMany } from "api/fetchMany";
 import { AssignmentForm } from "app/assignment/AssignmentForm";
 import { CategoryDeleteButton } from "app/category/CategoryDeleteButton";
-import { CategoryForm } from "app/category/CategoryForm";
+import { CreateCategoryForm } from "app/category/CreateCategoryForm";
+import { EditableCategoryName } from "app/category/EditableCategoryName";
 import { convertDateToJulianDay, convertJulianDayToDate } from 'lib/dateUtil';
 import React from "react";
 import { useQuery } from "react-query";
@@ -29,7 +30,7 @@ function SurveyTableRow({ category, assignmentsByCategoryIdAndJulianDay, julianD
     return (<>
         <TableRow>
             <TableCell component="th" scope="row">
-                {category.name}
+                <EditableCategoryName {...{ category }} />
             </TableCell>
             <TableCell padding="checkbox">
                 <CategoryDeleteButton categoryId={category.id} />
@@ -91,6 +92,13 @@ function SurveyTableWithEverythingYouNeed({ assignments, survey, julianDays, cat
         }, {}), [assignments]
     );
 
+    const [upstreamCategory, setUpstreamCategory] = React.useState(undefined);
+    const resetUpstreamCategory = React.useCallback(
+        () => setUpstreamCategory({ survey_id: survey.id }),
+        [setUpstreamCategory, survey.id]
+    );
+    React.useEffect(resetUpstreamCategory, [resetUpstreamCategory]);
+
     return (<>
         <Table>
             <TableHead>
@@ -107,7 +115,11 @@ function SurveyTableWithEverythingYouNeed({ assignments, survey, julianDays, cat
             </TableBody>
             <TableFooter>
                 <TableRow>
-                    <TableCell colSpan={2}><CategoryForm surveyId={survey.id} /></TableCell>
+                    <TableCell colSpan={2}>
+                        {upstreamCategory
+                            ? <CreateCategoryForm {...{ upstreamCategory }} onSuccess={resetUpstreamCategory} />
+                            : null}
+                    </TableCell>
                     <TableCell colSpan={999}></TableCell>
                 </TableRow>
             </TableFooter>

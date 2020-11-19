@@ -5,11 +5,13 @@ import React from "react";
 import { useMutation, useQueryCache } from 'react-query';
 import { useSnackbarNotifier } from 'SnackbarProvider';
 
+const DISPLAY_FLEX = { display: 'flex' };
+
 export function AssignmentForm({ categoryId, julianDay }) {
     const notify = useSnackbarNotifier();
 
     const [assignee, setAssignee] = React.useState("");
-    const handleAssigneeChange = e => setAssignee(e.target.value);
+    const handleAssigneeChange = React.useCallback(e => setAssignee(e.target.value), [setAssignee]);
 
     const queryCache = useQueryCache();
     const [mutate] = useMutation(create, {
@@ -29,18 +31,21 @@ export function AssignmentForm({ categoryId, julianDay }) {
         }),
     });
 
-    const handleSubmit = e => {
-        e.preventDefault();
-        mutate({
-            type: 'assignments',
-            category_id: categoryId,
-            julian_day: julianDay,
-            assignee: assignee,
-        });
-    };
+    const handleSubmit = React.useCallback(
+        e => {
+            e.preventDefault();
+            mutate({
+                type: 'assignments',
+                category_id: categoryId,
+                julian_day: julianDay,
+                assignee: assignee,
+            });
+        },
+        [mutate, categoryId, julianDay, assignee]
+    );
 
     return (<>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} style={DISPLAY_FLEX}>
             <Input value={assignee} onChange={handleAssigneeChange} required variant="outlined" />
             <IconButton type="submit"><AddIcon /></IconButton>
         </form>

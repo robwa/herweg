@@ -1,46 +1,32 @@
-import { IconButton, Input } from '@material-ui/core';
+import { FormGroup, IconButton, Input } from '@material-ui/core';
 import { Save as AddIcon } from "@material-ui/icons";
-import { create } from "api/create";
 import React from "react";
-import { useMutation, useQueryCache } from 'react-query';
-import { useSnackbarNotifier } from 'SnackbarProvider';
 
-export function CategoryForm({ surveyId }) {
-    const notify = useSnackbarNotifier();
+const DISPLAY_FLEX = { display: 'flex' };
 
-    const [name, setName] = React.useState("");
-    const handleNameChange = e => setName(e.target.value);
+export function CategoryForm({ upstreamCategory, onSubmit }) {
+    const [category, setCategory] = React.useState(upstreamCategory ?? {});
+    React.useEffect(
+        () => setCategory(upstreamCategory ?? {}),
+        [setCategory, upstreamCategory]
+    );
 
-    const queryCache = useQueryCache();
-    const [mutate] = useMutation(create, {
-        onSuccess: ({ data: { name } }) => {
-            notify({
-                severity: 'success',
-                title: <>Created category <q>{name}</q></>,
-                content: null,
-            });
-            queryCache.invalidateQueries('categories');
-            setName('');
+    const handleNameChange = React.useCallback(
+        e => setCategory(prev => ({ ...prev, name: e.target.value })),
+        [setCategory]
+    );
+
+    const handleSubmit = React.useCallback(
+        e => {
+            e.preventDefault();
+            onSubmit(category);
         },
-        onError: err => notify({
-            severity: 'error',
-            title: 'Something went wrong',
-            content: err.toString(),
-        }),
-    });
-
-    const handleSubmit = e => {
-        e.preventDefault();
-        mutate({
-            type: 'categories',
-            survey_id: surveyId,
-            name,
-        });
-    };
+        [onSubmit, category]
+    );
 
     return (<>
-        <form onSubmit={handleSubmit}>
-            <Input value={name} onChange={handleNameChange} required variant="outlined" />
+        <form onSubmit={handleSubmit} style={DISPLAY_FLEX}>
+            <Input value={category?.name ?? ''} onChange={handleNameChange} required variant="outlined" />
             <IconButton type="submit"><AddIcon /></IconButton>
         </form>
     </>);
