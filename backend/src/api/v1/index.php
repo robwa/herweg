@@ -7,19 +7,22 @@ require 'serveResourceIndex.php';
 
 require 'handleDelete.php';
 require 'handleGet.php';
+require 'handlePatch.php';
 require 'handlePost.php';
 
-function die_invalid_request() {
+function die_invalid_request()
+{
   http_response_code(400);
   die();
 }
 
-function get_string_with_pattern(&$var, $pattern, $required = true) {
-  if(!isset($var)) {
-    if(!$required) return null;
+function get_string_with_pattern(&$var, $pattern, $required = true)
+{
+  if (!isset($var)) {
+    if (!$required) return null;
     die_invalid_request();
   }
-  if(!is_string($var) || !preg_match($pattern, $var)) {
+  if (!is_string($var) || !preg_match($pattern, $var)) {
     die_invalid_request();
   }
   return $var;
@@ -46,10 +49,10 @@ function matchQuery()
   );
 
   $uncheckedFilter = $_GET['filter'] ?? [];
-  if(!is_array($uncheckedFilter)) die_invalid_request();
+  if (!is_array($uncheckedFilter)) die_invalid_request();
   $filterKeys = array_map(
     function ($k) {
-      if(!is_string($k) || !preg_match('/\A[a-z_]+\z/', $k)) {
+      if (!is_string($k) || !preg_match('/\A[a-z_]+\z/', $k)) {
         die_invalid_request();
       }
       return $k;
@@ -58,11 +61,11 @@ function matchQuery()
   );
   $filterValues = array_map(
     function ($vs) {
-      if(is_string($vs)) $vs = explode(',', $vs);
-      if(!is_array($vs)) die_invalid_request();
+      if (is_string($vs)) $vs = explode(',', $vs);
+      if (!is_array($vs)) die_invalid_request();
       $vs = array_values($vs);
-      foreach($vs as $v) {
-        if(!is_string($v)) die_invalid_request();
+      foreach ($vs as $v) {
+        if (!is_string($v)) die_invalid_request();
         // no need to check filter values
       }
       return $vs;
@@ -91,6 +94,9 @@ switch ($_SERVER["REQUEST_METHOD"]) {
     break;
   case 'DELETE':
     handleDelete($db, $query);
+    break;
+  case 'PATCH':
+    handlePatch($db, $query);
     break;
   default:
     http_response_code(405);
