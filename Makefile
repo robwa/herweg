@@ -15,10 +15,13 @@ collect: ui
 	$(RM) -r herweg
 	$(CP) -r frontend/build ./herweg
 	$(MKDIR_P) ./herweg/api/v1
-	sqlite3 ./herweg/api/db.sqlite3 < backend/db/schema.sql
 	$(CP) backend/src/api/v1/*.php ./herweg/api/v1/
+
+.PHONY: with-db
+with-db: collect
+	sqlite3 ./herweg/api/db.sqlite3 < backend/db/schema.sql
 	chmod -R ugo+rwX ./herweg
 
 .PHONY: pkg
-pkg: collect
+pkg: with-db
 	tar cvf herweg.tar ./herweg
