@@ -106,7 +106,10 @@ function SurveyTableWithEverythingYouNeed({ assignments, survey, julianDays, cat
                     <TableCell component="th" scope="col" colSpan={2}>What?</TableCell>
                     <TableCell padding="checkbox"><IconButton component={Link} to={`/surveys/${survey.uuid}/${centralJulianDay - 1}`}><ArrowLeftIcon /></IconButton></TableCell>
                     {julianDays.map(julianDay => (
-                        <TableCell key={julianDay} component="th" scope="col">{convertJulianDayToDate(julianDay).toLocaleDateString()}</TableCell>))}
+                        <TableCell key={julianDay} component="th" scope="col">
+                          {convertJulianDayToDate(julianDay).toLocaleDateString(undefined,
+                            { weekday: 'short', day: 'numeric', month: 'numeric' })}
+                        </TableCell>))}
                     <TableCell padding="checkbox"><IconButton component={Link} to={`/surveys/${survey.uuid}/${centralJulianDay + 1}`}><ArrowRightIcon /></IconButton></TableCell>
                 </TableRow>
             </TableHead>
