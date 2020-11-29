@@ -62,7 +62,7 @@ export function SurveyDetail() {
     }], fetchMany, { enabled: survey });
 
     const centralJulianDay = Number(julianDay ?? convertDateToJulianDay(new Date()));
-    const julianDays = [centralJulianDay, centralJulianDay + 1, centralJulianDay + 2];
+    const julianDays = [centralJulianDay] //, centralJulianDay + 1, centralJulianDay + 2];
 
     const { data: assignments } = useQuery(['assignments', {
         filter: {
