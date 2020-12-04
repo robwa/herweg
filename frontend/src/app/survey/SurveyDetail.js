@@ -1,4 +1,6 @@
 import { CircularProgress, IconButton, Table, TableBody, TableCell, TableFooter, TableHead, TableRow } from "@material-ui/core";
+import { useTheme } from '@material-ui/core/styles';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { ArrowLeft as ArrowLeftIcon, ArrowRight as ArrowRightIcon } from "@material-ui/icons";
 import { fetchMany } from "api/fetchMany";
 import { AssignmentForm } from "app/assignment/AssignmentForm";
@@ -61,8 +63,17 @@ export function SurveyDetail() {
         filter: { survey_id: survey?.id }
     }], fetchMany, { enabled: survey });
 
+
     const centralJulianDay = Number(julianDay ?? convertDateToJulianDay(new Date()));
-    const julianDays = [centralJulianDay] //, centralJulianDay + 1, centralJulianDay + 2];
+
+    const theme = useTheme();
+    const isLargeViewport = useMediaQuery(theme.breakpoints.up('md'));
+    const numberOfDays = isLargeViewport ? 3 : 1;
+
+    const julianDays = React.useMemo(
+        () => [...Array(numberOfDays).keys()].map(offset => centralJulianDay + offset),
+        [numberOfDays, centralJulianDay]
+    );
 
     const { data: assignments } = useQuery(['assignments', {
         filter: {
@@ -107,8 +118,8 @@ function SurveyTableWithEverythingYouNeed({ assignments, survey, julianDays, cat
                     <TableCell padding="checkbox"><IconButton component={Link} to={`/surveys/${survey.uuid}/${centralJulianDay - 1}`}><ArrowLeftIcon /></IconButton></TableCell>
                     {julianDays.map(julianDay => (
                         <TableCell key={julianDay} component="th" scope="col">
-                          {convertJulianDayToDate(julianDay).toLocaleDateString(undefined,
-                            { weekday: 'short', day: 'numeric', month: 'numeric' })}
+                            {convertJulianDayToDate(julianDay).toLocaleDateString(undefined,
+                                { weekday: 'short', day: 'numeric', month: 'numeric' })}
                         </TableCell>))}
                     <TableCell padding="checkbox"><IconButton component={Link} to={`/surveys/${survey.uuid}/${centralJulianDay + 1}`}><ArrowRightIcon /></IconButton></TableCell>
                 </TableRow>
