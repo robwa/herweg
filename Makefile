@@ -7,7 +7,7 @@ all: pkg
 
 .PHONY: ui
 ui:
-	cd frontend && \. "$(NVM_DIR)/nvm.sh" && nvm use && npm run-script build
+	cd frontend && \. "$(NVM_DIR)/nvm.sh" && nvm use && yarn build
 
 .PHONY: collect
 collect: ui
