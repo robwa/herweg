@@ -1,24 +1,26 @@
-import { update } from "api/update";
+import { create } from "api/create";
 import React from "react";
 import { useMutation, useQueryCache } from 'react-query';
 import { useSnackbarNotifier } from 'SnackbarProvider';
+import { Category } from "./Category";
 import { CategoryForm } from './CategoryForm';
 
-export function UpdateCategoryForm({ upstreamCategory, onSuccess }) {
+type CreateCategoryFormProps = { upstreamCategory: Category, onSuccess: () => void }
+export function CreateCategoryForm({ upstreamCategory, onSuccess }: CreateCategoryFormProps) {
     const notify = useSnackbarNotifier();
 
     const queryCache = useQueryCache();
-    const [mutate] = useMutation(update, {
-        onSuccess: ({ data: { name } }) => {
+    const [mutate] = useMutation(create, {
+        onSuccess: (resp: any) => {
             notify({
                 severity: 'success',
-                title: <>Updated category <q>{name}</q></>,
+                title: <>Created category <q>{resp.data.name}</q></>,
                 content: null,
             });
             queryCache.invalidateQueries('categories');
             if (onSuccess) onSuccess();
         },
-        onError: err => notify({
+        onError: (err: any) => notify({
             severity: 'error',
             title: 'Something went wrong',
             content: err.toString(),
@@ -26,9 +28,9 @@ export function UpdateCategoryForm({ upstreamCategory, onSuccess }) {
     });
 
     const handleSubmit = React.useCallback(
-        ({ id, name }) => mutate({
+        ({ survey_id, name }) => mutate({
             type: 'categories',
-            id,
+            survey_id,
             name,
         }),
         [mutate]

@@ -14,7 +14,8 @@ const useStyles = makeStyles(theme => ({
     },
 }));
 
-export function SurveyDeleteButton({ surveyUuid }) {
+type SurveyDeleteButtonProps = { surveyUuid?: string };
+export function SurveyDeleteButton({ surveyUuid }: SurveyDeleteButtonProps) {
     const history = useHistory();
     const notify = useSnackbarNotifier();
 
@@ -22,7 +23,7 @@ export function SurveyDeleteButton({ surveyUuid }) {
 
     const [mutate] = useMutation(remove, {
         onSuccess: () => history.push('/'),
-        onError: err => notify({
+        onError: (err: any) => notify({
             severity: 'error',
             title: 'Something went wrong',
             content: err.toString(),

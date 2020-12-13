@@ -1,10 +1,12 @@
-import { FormGroup, IconButton, Input } from '@material-ui/core';
+import { IconButton, TextField } from '@material-ui/core';
 import { Save as AddIcon } from "@material-ui/icons";
 import React from "react";
+import { Category } from './Category';
 
 const DISPLAY_FLEX = { display: 'flex' };
 
-export function CategoryForm({ upstreamCategory, onSubmit }) {
+type CategoryFormProps = { upstreamCategory: Category, onSubmit: (category: Category) => void }
+export function CategoryForm({ upstreamCategory, onSubmit }: CategoryFormProps) {
     const [category, setCategory] = React.useState(upstreamCategory ?? {});
     React.useEffect(
         () => setCategory(upstreamCategory ?? {}),
@@ -26,7 +28,7 @@ export function CategoryForm({ upstreamCategory, onSubmit }) {
 
     return (<>
         <form onSubmit={handleSubmit} style={DISPLAY_FLEX}>
-            <Input value={category?.name ?? ''} onChange={handleNameChange} required variant="outlined" />
+            <TextField value={category?.name ?? ''} onChange={handleNameChange} required variant="outlined" />
             <IconButton type="submit"><AddIcon /></IconButton>
         </form>
     </>);
