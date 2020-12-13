@@ -5,7 +5,8 @@ import React from "react";
 import { useMutation, useQueryCache } from 'react-query';
 import { useSnackbarNotifier } from "SnackbarProvider";
 
-export function AssignmentDeleteButton({ assignmentId }) {
+type AssignmentDeleteButtonProps = { assignmentId?: string };
+export function AssignmentDeleteButton({ assignmentId }: AssignmentDeleteButtonProps) {
     const notify = useSnackbarNotifier();
 
     const queryCache = useQueryCache();
@@ -18,7 +19,7 @@ export function AssignmentDeleteButton({ assignmentId }) {
             });
             queryCache.invalidateQueries('assignments');
         },
-        onError: err => notify({
+        onError: (err: any) => notify({
             severity: 'error',
             title: 'Something went wrong',
             content: err.toString(),

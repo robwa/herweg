@@ -5,7 +5,8 @@ import React from "react";
 import { useMutation, useQueryCache } from 'react-query';
 import { useSnackbarNotifier } from "SnackbarProvider";
 
-export function CategoryDeleteButton({ categoryId }) {
+type CategoryDeleteButtonProps = { categoryId: string };
+export function CategoryDeleteButton({ categoryId }: CategoryDeleteButtonProps) {
     const notify = useSnackbarNotifier();
 
     const queryCache = useQueryCache();
@@ -18,7 +19,7 @@ export function CategoryDeleteButton({ categoryId }) {
             });
             queryCache.invalidateQueries('categories');
         },
-        onError: err => notify({
+        onError: (err: any) => notify({
             severity: 'error',
             title: 'Something went wrong',
             content: err.toString(),

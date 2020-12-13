@@ -5,14 +5,18 @@ import { useMutation } from 'react-query';
 import { useHistory } from "react-router-dom";
 import { useSnackbarNotifier } from "SnackbarProvider";
 import { v4 as uuidv4 } from 'uuid';
+import { Survey } from './Survey';
 
 export function SurveyCreateButton() {
     const history = useHistory();
     const notify = useSnackbarNotifier();
 
     const [mutate] = useMutation(create, {
-        onSuccess: ({ data: { uuid } }) => history.push(`/surveys/${uuid}`),
-        onError: err => notify({
+        onSuccess: (resp: any) => {
+            const survey: Survey = resp.data;
+            history.push(`/surveys/${survey.uuid}`)
+        },
+        onError: (err: any) => notify({
             severity: 'error',
             title: 'Something went wrong',
             content: err.toString(),

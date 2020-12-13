@@ -11,11 +11,21 @@ import { convertDateToJulianDay, convertJulianDayToDate } from 'lib/dateUtil';
 import React from "react";
 import { useQuery } from "react-query";
 import { Link, useParams } from "react-router-dom";
+import { Assignment } from "../assignment/Assignment";
 import { AssignmentList } from "../assignment/AssignmentList";
+import { Category } from "../category/Category";
+import { Survey } from "./Survey";
 import { SurveyDeleteButton } from "./SurveyDeleteButton";
 
+type AssignmentsByJulianDay = { [julianDay: string]: Assignment[] };
+type AssignmentsByCategoryIdAndJulianDay = { [categoryId: string]: AssignmentsByJulianDay };
 
-function AssignmentsCell({ julianDay, assignmentsByJulianDay, category }) {
+type AssignmentCellProps = {
+    julianDay: number;
+    assignmentsByJulianDay: AssignmentsByJulianDay;
+    category: Category;
+};
+function AssignmentsCell({ julianDay, assignmentsByJulianDay, category }: AssignmentCellProps) {
     const assignmentData = assignmentsByJulianDay[julianDay] ?? [];
 
     return (
@@ -26,7 +36,15 @@ function AssignmentsCell({ julianDay, assignmentsByJulianDay, category }) {
     );
 }
 
-function SurveyTableRow({ category, assignmentsByCategoryIdAndJulianDay, julianDays }) {
+type SurveyTableRowProps = {
+    category: Category;
+    assignmentsByCategoryIdAndJulianDay: AssignmentsByCategoryIdAndJulianDay;
+    julianDays: number[];
+};
+function SurveyTableRow({ category, assignmentsByCategoryIdAndJulianDay, julianDays }: SurveyTableRowProps) {
+    if(!category.id) {
+        return null;
+    }
     const assignmentsByJulianDay = assignmentsByCategoryIdAndJulianDay[category.id] ?? {};
 
     return (<>
@@ -45,23 +63,30 @@ function SurveyTableRow({ category, assignmentsByCategoryIdAndJulianDay, julianD
     </>);
 }
 
-function SurveyTableRows({ categories, assignmentsByCategoryIdAndJulianDay, julianDays }) {
-    return categories.data.map(category => (
-        <SurveyTableRow key={category.id} {...{ category, assignmentsByCategoryIdAndJulianDay, julianDays }} />));
+type SurveyTableRowsProps = {
+    categories?: Category[];
+    assignmentsByCategoryIdAndJulianDay: AssignmentsByCategoryIdAndJulianDay;
+    julianDays: number[];
+};
+function SurveyTableRows({ categories, assignmentsByCategoryIdAndJulianDay, julianDays }: SurveyTableRowsProps) {
+    return <>{categories?.map(category => (
+        <SurveyTableRow key={category.id} {...{ category, assignmentsByCategoryIdAndJulianDay, julianDays }} />)) ?? null}</>;
 }
 
 export function SurveyDetail() {
-    const { surveyUuid, julianDay } = useParams();
+    const { surveyUuid, julianDay } = useParams<any>();
 
-    const { data: surveys } = useQuery(['surveys', {
+    const surveysResp: any = useQuery(['surveys', {
         filter: { uuid: surveyUuid },
     }], fetchMany);
 
-    const survey = surveys?.data?.[0];
+    const survey: Survey | undefined = surveysResp?.data?.data?.[0];
 
-    const { data: categories } = useQuery(['categories', {
+    const categoriesResp: any = useQuery(['categories', {
         filter: { survey_id: survey?.id }
     }], fetchMany, { enabled: survey });
+
+    const categories: Category[] | undefined = categoriesResp?.data?.data;
 
 
     const centralJulianDay = Number(julianDay ?? convertDateToJulianDay(new Date()));
@@ -75,12 +100,13 @@ export function SurveyDetail() {
         [numberOfDays, centralJulianDay]
     );
 
-    const { data: assignments } = useQuery(['assignments', {
+    const assignmentsResp: any = useQuery(['assignments', {
         filter: {
-            category_id: categories?.data?.map(c => c.id)?.join(','),
+            category_id: categories?.map(c => c.id)?.join(','),
             julian_day: julianDays.join(','),
         },
-    }], fetchMany, { enabled: categories?.data });
+    }], fetchMany, { enabled: categories });
+    const assignments = assignmentsResp?.data?.data;
 
     if (!assignments) {
         return <CircularProgress />;
@@ -89,24 +115,33 @@ export function SurveyDetail() {
     return <SurveyTableWithEverythingYouNeed {...{ assignments, survey, julianDays, categories, centralJulianDay }} />;
 }
 
-function SurveyTableWithEverythingYouNeed({ assignments, survey, julianDays, categories, centralJulianDay }) {
-    const assignmentsByCategoryIdAndJulianDay = React.useMemo(
-        () => assignments.data.reduce((acc, assignment) => {
+type SurveyTableWithEverythingYouNeedProps = {
+    assignments?: Assignment[];
+    survey?: Survey;
+    julianDays: number[];
+    categories?: Category[];
+    centralJulianDay: number;
+};
+function SurveyTableWithEverythingYouNeed({ assignments, survey, julianDays, categories, centralJulianDay }: SurveyTableWithEverythingYouNeedProps) {
+    const assignmentsByCategoryIdAndJulianDay = React.useMemo(() => {
+        const assignmentsByCategoryIdAndJulianDayEmpty: AssignmentsByCategoryIdAndJulianDay = {};
+        return assignments?.reduce((acc, assignment) => {
             const categoryId = assignment.category_id;
             const julianDay = assignment.julian_day;
-            const byJulianDay = acc[categoryId] ?? {};
-            const list = byJulianDay[julianDay] ?? [];
+            const byJulianDayEmpty: AssignmentsByJulianDay = {};
+            const byJulianDay = acc[categoryId ?? ''] ?? byJulianDayEmpty;
+            const list = byJulianDay[julianDay ?? ''] ?? [];
             list.push(assignment);
-            byJulianDay[julianDay] = list;
-            acc[categoryId] = byJulianDay;
+            byJulianDay[julianDay ?? ''] = list;
+            acc[categoryId ?? ''] = byJulianDay;
             return acc;
-        }, {}), [assignments]
-    );
+        }, assignmentsByCategoryIdAndJulianDayEmpty);
+    }, [assignments]) ?? {};
 
-    const [upstreamCategory, setUpstreamCategory] = React.useState(undefined);
+    const [upstreamCategory, setUpstreamCategory] = React.useState<Category | undefined>(undefined);
     const resetUpstreamCategory = React.useCallback(
-        () => setUpstreamCategory({ survey_id: survey.id }),
-        [setUpstreamCategory, survey.id]
+        () => setUpstreamCategory({ survey_id: survey?.id }),
+        [setUpstreamCategory, survey?.id]
     );
     React.useEffect(resetUpstreamCategory, [resetUpstreamCategory]);
 
@@ -115,13 +150,13 @@ function SurveyTableWithEverythingYouNeed({ assignments, survey, julianDays, cat
             <TableHead>
                 <TableRow>
                     <TableCell component="th" scope="col" colSpan={2}>What?</TableCell>
-                    <TableCell padding="checkbox"><IconButton component={Link} to={`/surveys/${survey.uuid}/${centralJulianDay - 1}`}><ArrowLeftIcon /></IconButton></TableCell>
+                    <TableCell padding="checkbox"><IconButton component={Link} to={`/surveys/${survey?.uuid}/${centralJulianDay - 1}`}><ArrowLeftIcon /></IconButton></TableCell>
                     {julianDays.map(julianDay => (
                         <TableCell key={julianDay} component="th" scope="col">
                             {convertJulianDayToDate(julianDay).toLocaleDateString(undefined,
                                 { weekday: 'short', day: 'numeric', month: 'numeric' })}
                         </TableCell>))}
-                    <TableCell padding="checkbox"><IconButton component={Link} to={`/surveys/${survey.uuid}/${centralJulianDay + 1}`}><ArrowRightIcon /></IconButton></TableCell>
+                    <TableCell padding="checkbox"><IconButton component={Link} to={`/surveys/${survey?.uuid}/${centralJulianDay + 1}`}><ArrowRightIcon /></IconButton></TableCell>
                 </TableRow>
             </TableHead>
             <TableBody>
@@ -138,6 +173,6 @@ function SurveyTableWithEverythingYouNeed({ assignments, survey, julianDays, cat
                 </TableRow>
             </TableFooter>
         </Table>
-        <SurveyDeleteButton surveyUuid={survey.uuid} />
+        <SurveyDeleteButton surveyUuid={survey?.uuid} />
     </>);
 }
