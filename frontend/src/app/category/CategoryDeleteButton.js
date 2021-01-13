@@ -25,10 +25,16 @@ export function CategoryDeleteButton({ categoryId }) {
         }),
     });
 
-    const handleDelete = () => mutate({
-        type: 'categories',
-        id: categoryId,
-    });
+    const handleDelete = () => {
+        if (!window.confirm('are you sure?')) {
+            return;
+        }
+
+        mutate({
+            type: 'categories',
+            id: categoryId,
+        });
+    };
 
     return (<>
         <IconButton onClick={handleDelete}><DeleteIcon /></IconButton>
