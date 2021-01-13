@@ -138,6 +138,5 @@ function SurveyTableWithEverythingYouNeed({ assignments, survey, julianDays, cat
                 </TableRow>
             </TableFooter>
         </Table>
-        <SurveyDeleteButton surveyUuid={survey.uuid} />
     </>);
 }
