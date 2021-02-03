@@ -35,7 +35,6 @@ function SurveyTableRow({ category, assignmentsByCategoryIdAndJulianDay, julianD
                 <EditableCategoryName {...{ category }} />
             </TableCell>
             <TableCell padding="checkbox">
-                <CategoryDeleteButton categoryId={category.id} />
             </TableCell>
             <TableCell padding="checkbox">{/* prev day */}</TableCell>
             {julianDays.map(julianDay => (
