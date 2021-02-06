@@ -66,8 +66,15 @@ export function SurveyDetail() {
     const centralJulianDay = Number(julianDay ?? convertDateToJulianDay(new Date()));
 
     const theme = useTheme();
-    const isLargeViewport = useMediaQuery(theme.breakpoints.up('md'));
-    const numberOfDays = isLargeViewport ? 3 : 1;
+    const upXl = useMediaQuery(theme.breakpoints.up('xl'));
+    const upLg = useMediaQuery(theme.breakpoints.up('lg'));
+    const upMd = useMediaQuery(theme.breakpoints.up('md'));
+    const numberOfDays = (() => {
+        if (upXl) return 7;
+        if (upLg) return 5;
+        if (upMd) return 3;
+        return 1;
+    })();
 
     const julianDays = React.useMemo(
         () => [...Array(numberOfDays).keys()].map(offset => centralJulianDay + offset),
