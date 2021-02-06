@@ -110,7 +110,7 @@ function SurveyTableWithEverythingYouNeed({ assignments, survey, julianDays, cat
     React.useEffect(resetUpstreamCategory, [resetUpstreamCategory]);
 
     return (<>
-        <Table>
+        <Table stickyHeader>
             <TableHead>
                 <TableRow>
                     <TableCell component="th" scope="col" colSpan={2}>What?</TableCell>
