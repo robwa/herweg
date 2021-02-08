@@ -37,7 +37,7 @@ function Main() {
 
 function Layout() {
     return (<>
-        <Container>
+        <Container maxWidth={null}>
             <Main />
         </Container>
     </>);
