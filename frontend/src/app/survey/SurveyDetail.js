@@ -92,10 +92,10 @@ export function SurveyDetail() {
         return <CircularProgress />;
     }
 
-    return <SurveyTableWithEverythingYouNeed {...{ assignments, survey, julianDays, categories, centralJulianDay }} />;
+    return <SurveyTableWithEverythingYouNeed {...{ assignments, survey, julianDays, categories, centralJulianDay, numberOfDays }} />;
 }
 
-function SurveyTableWithEverythingYouNeed({ assignments, survey, julianDays, categories, centralJulianDay }) {
+function SurveyTableWithEverythingYouNeed({ assignments, survey, julianDays, categories, centralJulianDay, numberOfDays }) {
     const assignmentsByCategoryIdAndJulianDay = React.useMemo(
         () => assignments.data.reduce((acc, assignment) => {
             const categoryId = assignment.category_id;
@@ -121,13 +121,13 @@ function SurveyTableWithEverythingYouNeed({ assignments, survey, julianDays, cat
             <TableHead>
                 <TableRow>
                     <TableCell component="th" scope="col" colSpan={2}>What?</TableCell>
-                    <TableCell padding="checkbox"><IconButton component={Link} to={`/surveys/${survey.uuid}/${centralJulianDay - 1}`}><ArrowLeftIcon /></IconButton></TableCell>
+                    <TableCell padding="checkbox"><IconButton component={Link} to={`/surveys/${survey.uuid}/${centralJulianDay - numberOfDays}`}><ArrowLeftIcon /></IconButton></TableCell>
                     {julianDays.map(julianDay => (
                         <TableCell key={julianDay} component="th" scope="col">
                             {convertJulianDayToDate(julianDay).toLocaleDateString(undefined,
                                 { weekday: 'short', day: 'numeric', month: 'numeric' })}
                         </TableCell>))}
-                    <TableCell padding="checkbox"><IconButton component={Link} to={`/surveys/${survey.uuid}/${centralJulianDay + 1}`}><ArrowRightIcon /></IconButton></TableCell>
+                    <TableCell padding="checkbox"><IconButton component={Link} to={`/surveys/${survey.uuid}/${centralJulianDay + numberOfDays}`}><ArrowRightIcon /></IconButton></TableCell>
                 </TableRow>
             </TableHead>
             <TableBody>
